@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import sharp from 'sharp';
 
+// Force Node.js runtime for Sharp compatibility
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
