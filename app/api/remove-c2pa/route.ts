@@ -26,8 +26,8 @@ export async function POST(request: NextRequest) {
     // Determine the content type based on the original file
     const contentType = file.type || 'image/png';
 
-    // Return the cleaned image
-    return new NextResponse(processedImage, {
+    // Return the cleaned image (convert Buffer to Uint8Array for Response)
+    return new Response(new Uint8Array(processedImage), {
       status: 200,
       headers: {
         'Content-Type': contentType,

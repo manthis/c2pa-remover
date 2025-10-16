@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 
 export default function Home() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -130,11 +131,13 @@ export default function Home() {
               <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
                 Original Image
               </h3>
-              <div className="relative w-full aspect-square bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden flex items-center justify-center">
-                <img
+              <div className="relative w-full aspect-square bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden">
+                <Image
                   src={previewUrl}
                   alt="Original"
-                  className="max-w-full max-h-full object-contain"
+                  fill
+                  className="object-contain"
+                  unoptimized
                 />
               </div>
               <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
@@ -149,11 +152,13 @@ export default function Home() {
               <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
                 Cleaned Image
               </h3>
-              <div className="relative w-full aspect-square bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden flex items-center justify-center">
-                <img
+              <div className="relative w-full aspect-square bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden">
+                <Image
                   src={cleanedImageUrl}
                   alt="Cleaned"
-                  className="max-w-full max-h-full object-contain"
+                  fill
+                  className="object-contain"
+                  unoptimized
                 />
               </div>
               <div className="mt-4 flex gap-2">
