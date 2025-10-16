@@ -39,4 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-images/c2pa-cleaned.png
+
+# images directory - only allow c2pa.png
+images/*
+!images/c2pa.png
