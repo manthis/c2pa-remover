@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import sharp from 'sharp';
+import { PNG } from 'pngjs';
+import jpeg from 'jpeg-js';
 
-// Force Node.js runtime for Sharp compatibility
+// Force Node.js runtime
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
@@ -21,14 +22,27 @@ export async function POST(request: NextRequest) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Process the image with sharp to remove all metadata (including C2PA/CR badge)
-    // The withMetadata(false) or lack of withMetadata() will strip all metadata
-    const processedImage = await sharp(buffer)
-      .withMetadata({}) // Remove all metadata including EXIF, IPTC, XMP, and C2PA
-      .toBuffer();
+    let processedImage: Buffer;
+    let contentType: string;
 
-    // Determine the content type based on the original file
-    const contentType = file.type || 'image/png';
+    // Detect image type and process accordingly
+    if (file.type === 'image/png' || (buffer[0] === 0x89 && buffer[1] === 0x50)) {
+      // Process PNG - decode and re-encode to strip metadata
+      const png = PNG.sync.read(buffer);
+      // Re-encode without any metadata - this strips all metadata chunks
+      processedImage = PNG.sync.write(png);
+      contentType = 'image/png';
+    } else if (file.type === 'image/jpeg' || (buffer[0] === 0xFF && buffer[1] === 0xD8)) {
+      // Process JPEG - decode and re-encode to strip metadata
+      const rawImageData = jpeg.decode(buffer, { useTArray: true });
+      processedImage = jpeg.encode(rawImageData, 95).data;
+      contentType = 'image/jpeg';
+    } else {
+      return NextResponse.json(
+        { error: 'Unsupported image format. Please use PNG or JPEG.' },
+        { status: 400 }
+      );
+    }
 
     // Return the cleaned image (convert Buffer to Uint8Array for Response)
     return new Response(new Uint8Array(processedImage), {
@@ -41,7 +55,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error processing image:', error);
     return NextResponse.json(
-      { error: 'Failed to process image' },
+      { error: 'Failed to process image', details: error instanceof Error ? error.message : String(error) },
       { status: 500 }
     );
   }
